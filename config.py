@@ -1,16 +1,4 @@
-"""
-config.py — Single source of truth for the entire ECG pipeline.
 
-Every path, hyperparameter, and constant lives here.
-All other files import from this module — nothing is hardcoded elsewhere.
-
-HOW TO USE:
-  - Change DATA_DIR to point at your PTB-XL folder.
-  - Change CHECKPOINT_DIR if you want checkpoints saved elsewhere.
-  - Adjust BATCH_SIZE to 8 if you get CUDA out-of-memory on RTX 3050.
-  - Set ANTHROPIC_API_KEY here OR export it as an environment variable
-    (the environment variable takes precedence).
-"""
 
 import os
 
@@ -20,7 +8,7 @@ import os
 
 # Root folder of your PTB-XL download.
 # Must contain: ptbxl_database.csv  and  records500/
-DATA_DIR = '/data/ptbxl'
+DATA_DIR = r'C:\Users\soham\Downloads\MJPR\ptb-xl-a-large-publicly-available-electrocardiography-dataset-1.0.3'
 
 # Where best_model.pt will be saved during training and loaded during inference.
 CHECKPOINT_DIR = 'checkpoints'
@@ -96,10 +84,10 @@ DROPOUT  = 0.2
 # Samples per training step.
 # RTX 3050 4 GB: use 16 (peaks ~2.5 GB VRAM with AMP).
 # If CUDA OOM: lower to 8.
-BATCH_SIZE   = 16
+BATCH_SIZE   = 64
 
 # Total training epochs
-EPOCHS       = 30
+EPOCHS       = 49
 
 # Peak learning rate for OneCycleLR
 LEARNING_RATE = 3e-4
@@ -116,7 +104,7 @@ GRAD_CLIP_NORM = 1.0
 # DataLoader worker processes.
 # Windows users: set to 0 (Windows doesn't support forked worker processes).
 # Linux users: 4 is a good default.
-NUM_WORKERS = 4
+NUM_WORKERS = 0
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # EXPLAINABILITY
@@ -126,15 +114,14 @@ NUM_WORKERS = 4
 TOP_K_LEADS = 3
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# GEMINI API  (free tier — https://aistudio.google.com/app/apikey)
+# ANTHROPIC API
 # ═══════════════════════════════════════════════════════════════════════════════
 
-# Gemini model for clinical report generation.
-# gemini-2.0-flash is the recommended free-tier model — fast and capable.
-GEMINI_MODEL     = 'gemini-2.0-flash'
-GEMINI_MAX_TOKENS = 1024
+# Claude model used for clinical report generation.
+ANTHROPIC_MODEL     = 'claude-sonnet-4-20250514'
+ANTHROPIC_MAX_TOKENS = 512
 
-# API key — leave as None to read from the GEMINI_API_KEY environment variable.
-# Get a free key at: https://aistudio.google.com/app/apikey
+# API key — leave as None to read from the ANTHROPIC_API_KEY environment variable.
+# If you set it here, it takes precedence over the environment variable.
 # WARNING: do not commit a real key to version control.
-GEMINI_API_KEY = "AIzaSyCc8oHd4nqN-7fs5RE63dlvrLGnt6UBC34" 
+ANTHROPIC_API_KEY = None   # e.g. "sk-ant-api03-..."

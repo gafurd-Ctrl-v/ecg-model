@@ -1,18 +1,4 @@
-"""
-app.py — Streamlit ECG Analysis Dashboard.
 
-Three input modes:
-  1. PTB-XL record path
-  2. Upload WFDB files (.hea + .dat)
-  3. Upload CSV (12 leads as columns or rows)
-
-Visualization:
-  - Uses interactive_viz.render_interactive_ecg() for the main display
-  - Interactive lead cards, cardiac anatomy panel, territory diagram
-
-All paths/constants from config.py.
-Run:  streamlit run app.py
-"""
 
 import os
 import io
@@ -190,51 +176,23 @@ def run_analysis(model, grad_cam, signal_np: np.ndarray, source_label: str):
 
     st.divider()
 
-    # ── AI Clinical Report (Gemini) ───────────────────────────────────────────
-    st.subheader('🤖 AI Clinical Report')
-    st.caption('Powered by Google Gemini — structured markdown report with localisation, evidence, and differentials.')
-
-    if st.button('✨ Generate Clinical Report (Gemini)', type='secondary'):
-        with st.spinner('Gemini is analysing the ECG…'):
+    # ── AI Clinical Summary ───────────────────────────────────────────────────
+    st.subheader('AI Clinical Summary')
+    if st.button('✨ Generate Report (Anthropic API)', type='secondary'):
+        with st.spinner('Generating report…'):
             try:
-                report_md = generate_clinical_report(
-                    predictions      = predictions,
-                    lead_importance  = lead_importance,
-                    clinical_metrics = metrics,
-                    sub_diagnoses    = sub_diagnoses,
-                )
-                # Render as styled card
-                st.markdown(
-                    f"""
-<div style="background:#0f172a;border:1.5px solid #1e3a5f;border-radius:12px;
-            padding:24px 28px;margin-top:8px;line-height:1.7">
-
-{report_md}
-
-</div>
-""",
-                    unsafe_allow_html=True,
-                )
-                # Also offer plain text download
-                st.download_button(
-                    label     = '⬇️ Download Report (.md)',
-                    data      = report_md,
-                    file_name = 'ecg_clinical_report.md',
-                    mime      = 'text/markdown',
-                )
+                st.info(generate_clinical_report(predictions, lead_importance, metrics))
             except Exception as exc:
                 st.error(
-                    f'**Report generation failed:** {exc}\n\n'
-                    'Make sure `GEMINI_API_KEY` is set in `config.py` or as an '
-                    'environment variable.\n\n'
-                    'Get a free key at: https://aistudio.google.com/app/apikey'
+                    f'Report failed: **{exc}**\n\n'
+                    'Set `ANTHROPIC_API_KEY` in your environment or in config.py.'
                 )
 
 
 # ── Main UI ────────────────────────────────────────────────────────────────────
 
 def main():
-    st.title('🫀 ECG Attention Analyzer')
+    st.title('ECG Attention Analyzer')
     st.caption('ResNet-1D + Multi-Head Attention | PTB-XL | Grad-CAM + Attention Rollout')
 
     with st.sidebar:
