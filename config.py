@@ -20,7 +20,7 @@ import os
 
 # Root folder of your PTB-XL download.
 # Must contain: ptbxl_database.csv  and  records500/
-DATA_DIR = r'C:\Users\soham\Downloads\MJPR\ptb-xl-a-large-publicly-available-electrocardiography-dataset-1.0.3'
+DATA_DIR = '/data/ptbxl'
 
 # Where best_model.pt will be saved during training and loaded during inference.
 CHECKPOINT_DIR = 'checkpoints'
@@ -96,10 +96,10 @@ DROPOUT  = 0.2
 # Samples per training step.
 # RTX 3050 4 GB: use 16 (peaks ~2.5 GB VRAM with AMP).
 # If CUDA OOM: lower to 8.
-BATCH_SIZE   = 64
+BATCH_SIZE   = 16
 
 # Total training epochs
-EPOCHS       = 49
+EPOCHS       = 30
 
 # Peak learning rate for OneCycleLR
 LEARNING_RATE = 3e-4
@@ -116,7 +116,7 @@ GRAD_CLIP_NORM = 1.0
 # DataLoader worker processes.
 # Windows users: set to 0 (Windows doesn't support forked worker processes).
 # Linux users: 4 is a good default.
-NUM_WORKERS = 0
+NUM_WORKERS = 4
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # EXPLAINABILITY
@@ -126,14 +126,15 @@ NUM_WORKERS = 0
 TOP_K_LEADS = 3
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# ANTHROPIC API
+# GEMINI API  (free tier — https://aistudio.google.com/app/apikey)
 # ═══════════════════════════════════════════════════════════════════════════════
 
-# Claude model used for clinical report generation.
-ANTHROPIC_MODEL     = 'claude-sonnet-4-20250514'
-ANTHROPIC_MAX_TOKENS = 512
+# Gemini model for clinical report generation.
+# gemini-2.0-flash is the recommended free-tier model — fast and capable.
+GEMINI_MODEL     = 'gemini-2.0-flash'
+GEMINI_MAX_TOKENS = 1024
 
-# API key — leave as None to read from the ANTHROPIC_API_KEY environment variable.
-# If you set it here, it takes precedence over the environment variable.
+# API key — leave as None to read from the GEMINI_API_KEY environment variable.
+# Get a free key at: https://aistudio.google.com/app/apikey
 # WARNING: do not commit a real key to version control.
-ANTHROPIC_API_KEY = None   # e.g. "sk-ant-api03-..."
+GEMINI_API_KEY = "AIzaSyCc8oHd4nqN-7fs5RE63dlvrLGnt6UBC34" 
