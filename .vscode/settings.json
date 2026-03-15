@@ -1,0 +1,6 @@
+{
+    "python.defaultInterpreterPath": "..\\ecg_env\\Scripts\\python.exe",
+    "python.analysis.extraPaths": [
+        "."
+    ]
+}
