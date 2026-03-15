@@ -33,7 +33,8 @@ from dataset        import bandpass_filter, instance_normalize, pad_or_crop
 from model          import ECGAttentionNet
 from explainability import GradCAM1D, compute_lead_importance, top_k_leads
 from report         import extract_clinical_metrics, generate_clinical_report
-from interactive_viz import render_interactive_ecg
+from interactive_viz  import render_interactive_ecg
+from diagnosis_engine import run_diagnosis_engine
 
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -145,6 +146,9 @@ def run_analysis(model, grad_cam, signal_np: np.ndarray, source_label: str):
     with st.spinner('Extracting clinical intervals…'):
         metrics = extract_clinical_metrics(signal_np)
 
+    # ── Run detailed diagnosis engine ─────────────────────────────────────────
+    sub_diagnoses = run_diagnosis_engine(predictions, lead_importance, metrics)
+
     # ── Clinical metrics row ──────────────────────────────────────────────────
     st.subheader(
         f'Primary finding: {CLASS_NAMES[top_cls]} — {top_conf * 100:.1f}% confidence')
@@ -181,6 +185,7 @@ def run_analysis(model, grad_cam, signal_np: np.ndarray, source_label: str):
         lead_importance = lead_importance,
         predictions     = predictions,
         top_cls         = top_cls,
+        sub_diagnoses   = sub_diagnoses,
     )
 
     st.divider()
