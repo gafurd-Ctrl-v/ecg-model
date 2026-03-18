@@ -1,5 +1,3 @@
-
-
 import os
 import io
 import tempfile
@@ -15,10 +13,10 @@ from config import (
     CLASSES, CLASS_NAMES, LEAD_NAMES,
     NUM_CLASSES, BASE_CH, N_HEADS, DROPOUT, TOP_K_LEADS,
 )
-from dataset        import bandpass_filter, instance_normalize, pad_or_crop
-from model          import ECGAttentionNet
-from explainability import GradCAM1D, compute_lead_importance, top_k_leads
-from report         import extract_clinical_metrics, generate_clinical_report
+from dataset          import bandpass_filter, instance_normalize, pad_or_crop
+from model            import ECGAttentionNet
+from explainability   import GradCAM1D, compute_lead_importance, top_k_leads
+from report           import extract_clinical_metrics
 from interactive_viz  import render_interactive_ecg
 from diagnosis_engine import run_diagnosis_engine
 
@@ -86,7 +84,6 @@ def load_from_csv_upload(csv_file) -> np.ndarray:
 def plot_12_lead(signal:  np.ndarray,
                  heatmap: np.ndarray | None = None,
                  title:   str = '12-Lead ECG') -> plt.Figure:
-    """Plot all 12 leads in a 6×2 grid with optional Grad-CAM heatmap overlay."""
     fig, axes = plt.subplots(6, 2, figsize=(16, 12))
     fig.suptitle(title, fontsize=12)
     t = np.arange(SIGNAL_LEN) / FS
@@ -112,8 +109,6 @@ def plot_12_lead(signal:  np.ndarray,
 # ── Analysis pipeline ──────────────────────────────────────────────────────────
 
 def run_analysis(model, grad_cam, signal_np: np.ndarray, source_label: str):
-    """Run inference + explainability + render full interactive dashboard."""
-
     signal_t = torch.FloatTensor(signal_np).unsqueeze(0).to(DEVICE)
 
     with st.spinner('Running inference…'):
@@ -132,7 +127,6 @@ def run_analysis(model, grad_cam, signal_np: np.ndarray, source_label: str):
     with st.spinner('Extracting clinical intervals…'):
         metrics = extract_clinical_metrics(signal_np)
 
-    # ── Run detailed diagnosis engine ─────────────────────────────────────────
     sub_diagnoses = run_diagnosis_engine(predictions, lead_importance, metrics)
 
     # ── Clinical metrics row ──────────────────────────────────────────────────
@@ -148,7 +142,7 @@ def run_analysis(model, grad_cam, signal_np: np.ndarray, source_label: str):
 
     st.divider()
 
-    # ── 12-lead ECG plot with Grad-CAM overlay ────────────────────────────────
+    # ── 12-lead ECG plot ──────────────────────────────────────────────────────
     show_cam = st.toggle('Show Grad-CAM overlay on 12-lead plot', value=True)
     st.subheader('12-Lead ECG' + (' + Grad-CAM Overlay' if show_cam else ''))
     fig = plot_12_lead(
@@ -173,20 +167,6 @@ def run_analysis(model, grad_cam, signal_np: np.ndarray, source_label: str):
         top_cls         = top_cls,
         sub_diagnoses   = sub_diagnoses,
     )
-
-    st.divider()
-
-    # ── AI Clinical Summary ───────────────────────────────────────────────────
-    st.subheader('AI Clinical Summary')
-    if st.button('✨ Generate Report (Anthropic API)', type='secondary'):
-        with st.spinner('Generating report…'):
-            try:
-                st.info(generate_clinical_report(predictions, lead_importance, metrics))
-            except Exception as exc:
-                st.error(
-                    f'Report failed: **{exc}**\n\n'
-                    'Set `ANTHROPIC_API_KEY` in your environment or in config.py.'
-                )
 
 
 # ── Main UI ────────────────────────────────────────────────────────────────────
