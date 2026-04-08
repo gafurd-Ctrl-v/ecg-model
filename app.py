@@ -22,7 +22,7 @@ from diagnosis_engine import run_diagnosis_engine
 
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-st.set_page_config(page_title='ECG Attention Analyzer', page_icon='🫀', layout='wide')
+st.set_page_config(page_title='ECG Attention Analyzer', layout='wide')
 
 
 # ── Cached model ───────────────────────────────────────────────────────────────
